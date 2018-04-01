@@ -36,11 +36,51 @@ function drawGrid(ctx, minor_, major_, stroke_, fill_) {
     ctx.restore();
 }
 
-function drawPacman(ctx, x, y, radius, openPercentage) {
+function drawShip(ctx, x, y, radius, options) {
+    options = options || {};
+
+    ctx.save();
+
+    // Optionally draw collision radius display
+    if (options.guide) {
+        ctx.strokeStyle = "white";
+        ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
+        ctx.lineWidth = 0.5;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.fill()
+    }
+
+    // Default values
+    ctx.lineWidth = options.lineWidth || 2;
+    ctx.strokeStyle = options.stroke || "white";
+    ctx.fillStyle = options.fill || "black";
+    let angle = (options.angle || 0.5 * Math.PI) / 2;
+
+    // Draw ship
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(
+        x + Math.cos(Math.PI - angle) * radius,
+        y + Math.sin(Math.PI - angle) * radius,
+    );
+    ctx.lineTo(
+        x + Math.cos(Math.PI + angle) * radius,
+        y + Math.sin(Math.PI + angle) * radius,
+    );
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.restore();
+}
+
+function drawPacman(ctx, x, y, radius, openFactor) {
     ctx.save();
 
     ctx.beginPath();
-    ctx.arc(x, y, radius, 0.25 * Math.PI * openPercentage, -0.25 * Math.PI * openPercentage);
+    ctx.arc(x, y, radius, 0.25 * Math.PI * openFactor, -0.25 * Math.PI * openFactor);
     ctx.lineTo(x, y);
     ctx.fillStyle = "yellow";
     ctx.fill();

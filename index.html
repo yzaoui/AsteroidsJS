@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>More drawing to canvas</title>
+    <title>Drawing a spaceship</title>
     <link rel="stylesheet" href="styles.css">
     <script src="drawing.js"></script>
 </head>
 <body>
-<h1>More drawing to canvas</h1>
+<h1>Drawing a spaceship</h1>
 <canvas id="asteroids" width="400" height="400"></canvas>
 <script>
-    let canvas = document.getElementById("asteroids");
-    let context = canvas.getContext("2d");
+    let context = document.getElementById("asteroids").getContext("2d");
 
     drawGrid(context);
-    // drawGrid(context, 15, 45, 'red', 'yellow');
-    // drawGrid(context, 5, 30, 'white', 'red');
-
-    drawPacman(context, 200, 200, 150, Math.random());
+    drawShip(context, 200, 200, 125, {guide: true});
+    drawShip(context, 75, 75, 50, {stroke: "gold", fill: "purple"});
+    drawShip(context, 325, 325, 50, {angle: 0.8 * Math.PI, guide: true});
+    drawShip(context, 75, 325, 50, {angle: 0.3 * Math.PI, guide: true});
+    drawShip(context, 325, 75, 50, {lineWidth: 8, fill: "blue"});
 </script>
 </body>
 </html>
