@@ -35,3 +35,15 @@ function drawGrid(ctx, minor_, major_, stroke_, fill_) {
 
     ctx.restore();
 }
+
+function drawPacman(ctx, x, y, radius, openPercentage) {
+    ctx.save();
+
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0.25 * Math.PI * openPercentage, -0.25 * Math.PI * openPercentage);
+    ctx.lineTo(x, y);
+    ctx.fillStyle = "yellow";
+    ctx.fill();
+
+    ctx.restore();
+}
