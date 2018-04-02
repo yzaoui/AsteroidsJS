@@ -36,6 +36,31 @@ function drawGrid(ctx, minor_, major_, stroke_, fill_) {
     ctx.restore();
 }
 
+function drawAsteroid(ctx, radius, segments, options_) {
+    let options = options_ || {};
+    ctx.strokeStyle = options.stroke || "white";
+    ctx.fillStyle = options.fill || "black";
+    ctx.save();
+
+    ctx.beginPath();
+    for (let i = 0; i < segments; i++) {
+        ctx.rotate(2 * Math.PI / segments);
+        ctx.lineTo(radius, 0);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    if (options.guide) {
+        ctx.lineWidth = 0.5;
+        ctx.beginPath();
+        ctx.arc(0, 0, radius, 0, 2 * Math.PI);
+        ctx.stroke();
+    }
+
+    ctx.restore();
+}
+
 function drawShip(ctx, radius, options) {
     options = options || {};
     let angle = (options.angle || 0.5 * Math.PI) / 2;
