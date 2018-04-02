@@ -39,7 +39,9 @@ function drawGrid(ctx, minor_, major_, stroke_, fill_) {
 function drawShip(ctx, radius, options) {
     options = options || {};
     let angle = (options.angle || 0.5 * Math.PI) / 2;
-    let curve = options.curve || 0.5;
+    let curveBack = options.curveBack || 0.25;
+    let curvePointBack = {x: -radius * curveBack, y: 0};
+    let curveSides = options.curveSides || 0.75;
 
     ctx.save();
 
@@ -59,31 +61,80 @@ function drawShip(ctx, radius, options) {
     ctx.fillStyle = options.fill || "black";
     ctx.beginPath();
     ctx.moveTo(radius, 0);
-    ctx.lineTo(
+    ctx.quadraticCurveTo(
+        Math.cos(angle) * radius * curveSides,
+        Math.sin(angle) * radius * curveSides,
         Math.cos(Math.PI - angle) * radius,
         Math.sin(Math.PI - angle) * radius
     );
     ctx.quadraticCurveTo(
-        radius * curve - radius,
-        0,
+        curvePointBack.x,
+        curvePointBack.y,
         Math.cos(Math.PI + angle) * radius,
         Math.sin(Math.PI + angle) * radius
     );
-    ctx.closePath();
+    ctx.quadraticCurveTo(
+        Math.cos(-angle) * radius * curveSides,
+        Math.sin(-angle) * radius * curveSides,
+        radius,
+        0
+    );
     ctx.fill();
     ctx.stroke();
 
     // Guide line / point for the curve-pulling point
     if (options.guide) {
         ctx.strokeStyle = "white";
+        ctx.fillStyle = "white";
         ctx.lineWidth = 0.5;
+
+        // Draw the three axes
         ctx.beginPath();
-        ctx.moveTo(-radius, 0);
+        ctx.moveTo(
+            Math.cos(-angle) * radius,
+            Math.sin(-angle) * radius
+        );
+        ctx.lineTo(0, 0);
+        ctx.moveTo(
+            Math.cos(angle) * radius,
+            Math.sin(angle) * radius
+        );
+        ctx.lineTo(0, 0);
+        ctx.moveTo(
+            -radius,
+            0
+        );
         ctx.lineTo(0, 0);
         ctx.stroke();
+
+        // Draw the three control points
         ctx.beginPath();
-        ctx.arc(radius * curve - radius, 0, radius/50, 0, 2 * Math.PI);
-        ctx.stroke();
+        ctx.arc(
+            Math.cos(angle) * radius * curveSides,
+            Math.sin(angle) * radius * curveSides,
+            radius / 40,
+            0,
+            2 * Math.PI
+        );
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(
+            Math.cos(-angle) * radius * curveSides,
+            Math.sin(-angle) * radius * curveSides,
+            radius / 40,
+            0,
+            2 * Math.PI
+        );
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(
+            curvePointBack.x,
+            curvePointBack.y,
+            radius / 50,
+            0,
+            2 * Math.PI
+        );
+        ctx.fill();
     }
 
     ctx.restore();

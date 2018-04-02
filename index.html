@@ -11,12 +11,16 @@
 <script>
     let context = document.getElementById("asteroids").getContext("2d");
 
-    context.lineWidth = 0.5;
-    context.strokeStyle = "white";
     drawGrid(context);
-
-    context.translate(200, 200);
-    drawShip(context, 150, {curve: Math.random(), guide: true});
+    for(let x = 0.1; x < 1; x += 0.2) {
+        for(let y = 0.1; y < 1; y += 0.2) {
+            context.save();
+            context.translate(context.canvas.width * x, context.canvas.height * y);
+            context.rotate(-Math.PI / 2);
+            drawShip(context, context.canvas.width / 12, {curveBack: x, curveSides: y, guide : true});
+            context.restore();
+        }
+    }
 </script>
 </body>
 </html>
