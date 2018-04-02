@@ -36,49 +36,32 @@ function drawGrid(ctx, minor_, major_, stroke_, fill_) {
     ctx.restore();
 }
 
-function drawAsteroid(ctx, radius, segments, options_) {
+function drawAsteroid(ctx, radius, shape, options_) {
     let options = options_ || {};
-    let noise = options.noise || 0.3;
     ctx.strokeStyle = options.stroke || "white";
     ctx.fillStyle = options.fill || "black";
     ctx.save();
 
     ctx.beginPath();
-    let minDistance = null;
-    let maxDistance = null;
-    for (let i = 0; i < segments; i++) {
-        ctx.rotate(2 * Math.PI / segments);
-        let distance = radius * (1 + noise * (Math.random() - 0.5));
-        ctx.lineTo(distance, 0);
-
-        // For guide circles
-        if (minDistance === null || minDistance > distance) {
-            minDistance = distance;
-        }
-
-        if (maxDistance === null || maxDistance < distance) {
-            maxDistance = distance;
-        }
+    for (let i = 0; i < shape.length; i++) {
+        ctx.rotate(2 * Math.PI / shape.length);
+        ctx.lineTo(radius + radius * options.noise * shape[i], 0);
     }
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
 
     if (options.guide) {
-        // Radius guide circle
         ctx.lineWidth = 0.5;
         ctx.beginPath();
         ctx.arc(0, 0, radius, 0, 2 * Math.PI);
         ctx.stroke();
-
+        ctx.beginPath();
         ctx.lineWidth = 0.2;
-        // Inner guide circle
-        ctx.beginPath();
-        ctx.arc(0, 0, minDistance, 0, 2 * Math.PI);
+        ctx.arc(0, 0, radius * (1 + options.noise), 0, 2 * Math.PI);
         ctx.stroke();
-        // Outer guide circle
         ctx.beginPath();
-        ctx.arc(0, 0, maxDistance, 0, 2 * Math.PI);
+        ctx.arc(0, 0, radius * (1 - options.noise), 0, 2 * Math.PI);
         ctx.stroke();
     }
 
