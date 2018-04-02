@@ -38,23 +38,47 @@ function drawGrid(ctx, minor_, major_, stroke_, fill_) {
 
 function drawAsteroid(ctx, radius, segments, options_) {
     let options = options_ || {};
+    let noise = options.noise || 0.3;
     ctx.strokeStyle = options.stroke || "white";
     ctx.fillStyle = options.fill || "black";
     ctx.save();
 
     ctx.beginPath();
+    let minDistance = null;
+    let maxDistance = null;
     for (let i = 0; i < segments; i++) {
         ctx.rotate(2 * Math.PI / segments);
-        ctx.lineTo(radius, 0);
+        let distance = radius * (1 + noise * (Math.random() - 0.5));
+        ctx.lineTo(distance, 0);
+
+        // For guide circles
+        if (minDistance === null || minDistance > distance) {
+            minDistance = distance;
+        }
+
+        if (maxDistance === null || maxDistance < distance) {
+            maxDistance = distance;
+        }
     }
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
 
     if (options.guide) {
+        // Radius guide circle
         ctx.lineWidth = 0.5;
         ctx.beginPath();
         ctx.arc(0, 0, radius, 0, 2 * Math.PI);
+        ctx.stroke();
+
+        ctx.lineWidth = 0.2;
+        // Inner guide circle
+        ctx.beginPath();
+        ctx.arc(0, 0, minDistance, 0, 2 * Math.PI);
+        ctx.stroke();
+        // Outer guide circle
+        ctx.beginPath();
+        ctx.arc(0, 0, maxDistance, 0, 2 * Math.PI);
         ctx.stroke();
     }
 
