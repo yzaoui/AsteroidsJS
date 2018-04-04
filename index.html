@@ -4,6 +4,7 @@
     <title>Drawing an asteroid</title>
     <link rel="stylesheet" href="styles.css">
     <script src="drawing.js"></script>
+    <script src="objects.js"></script>
 </head>
 <body>
 <h1>Drawing an asteroid</h1>
@@ -11,62 +12,18 @@
 <script>
     let context = document.getElementById("asteroids").getContext("2d");
 
-    // Asteroid shape
-    let segments = 24;
-    let shape = [];
-    for (let i = 0; i < segments; i++) {
-        shape.push(Math.random() - 0.5);
-    }
-    let radius = 50;
-    let noise = 0.2;
-
-    // Asteroid state
-    let x = context.canvas.width * Math.random();
-    let y = context.canvas.height * Math.random();
-    let angle = 0;
-
-    // Asteroid movement
-    let vx = context.canvas.width * (Math.random() - 0.5);
-    let vy = context.canvas.height * (Math.random() - 0.5);
-    let vrotation = 2 * Math.PI * (Math.random() - 0.5);
+    let asteroid = new Asteroid(24, 50, 0.2);
 
     function draw(ctx, guide) {
         if (guide) {
             drawGrid(ctx);
         }
 
-        ctx.save();
-
-        ctx.translate(x, y);
-        ctx.rotate(angle);
-        drawAsteroid(ctx, radius, shape, {
-            guide: guide,
-            noise: noise
-        });
-
-        ctx.restore();
+        asteroid.draw(ctx, guide);
     }
 
     function update(elapsed) {
-        if (x - radius + elapsed * vx > context.canvas.width) {
-            x = -radius;
-        }
-
-        if (x + radius + elapsed * vx < 0) {
-            x = context.canvas.width + radius;
-        }
-
-        if (y - radius + elapsed * vy > context.canvas.height) {
-            y = -radius;
-        }
-
-        if (y + radius + elapsed * vy < 0) {
-            y = context.canvas.height + radius;
-        }
-
-        x += elapsed * vx;
-        y += elapsed * vy;
-        angle = (angle + elapsed * vrotation) % (2 * Math.PI);
+        asteroid.update(elapsed);
     }
 
     let previousTimestamp, elapsed;
