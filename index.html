@@ -1,34 +1,58 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Drawing an asteroid</title>
+    <title>Drawing a bouncing Pacman</title>
     <link rel="stylesheet" href="styles.css">
     <script src="drawing.js"></script>
 </head>
 <body>
-<h1>Drawing an asteroid</h1>
+<h1>Drawing a bouncing Pacman</h1>
 <canvas id="asteroids" width="400" height="400"></canvas>
 <script>
     let context = document.getElementById("asteroids").getContext("2d");
+    context.strokeStyle = "white";
+    context.lineWidth = 1.5;
+    let x = 40;
+    let y = context.canvas.height / 2;
+    let radius = 20;
+    let xspeed = 2;
+    let yspeed = 0;
+    let gravity = 0.1;
+    let mouthOpenFactor = 0;
 
-    drawGrid(context);
-    let segments = 15;
-    let noise = 0;
-    let shape = [];
-
-    for (let i = 0; i < segments; i++) {
-        shape.push(2 * (Math.random() - 0.5));
+    function frame() {
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+        draw(context);
+        update();
     }
 
-    for(let y = 0.1; y < 1; y += 0.2) {
-        for(let x = 0.1; x < 1; x += 0.2) {
-            context.save();
-            context.translate(context.canvas.width * x, context.canvas.height * y);
-            drawAsteroid(context, context.canvas.width / 12, shape, {noise: noise, guide: true});
-            context.restore();
-            noise += 0.025;
+    function update() {
+        x += xspeed;
+        y += yspeed;
+        yspeed += gravity;
+
+        if (y >= context.canvas.height - radius) {
+            y = context.canvas.height - radius;
+            xspeed *= 0.95;
+            yspeed *= -0.6;
         }
+
+        if (x <= 0 || x >= context.canvas.width) {
+            x = (x + context.canvas.width) % context.canvas.width;
+        }
+
+        mouthOpenFactor = Math.abs(Math.sin(6 * Math.PI * x / (context.canvas.width)));
     }
+
+    function draw(ctx) {
+        drawGrid(ctx);
+        ctx.save();
+        ctx.translate(x, y);
+        drawPacman(ctx, radius, mouthOpenFactor);
+        ctx.restore();
+    }
+
+    setInterval(frame, 1000.0/60.0); // 60 fps
 </script>
 </body>
 </html>

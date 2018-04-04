@@ -172,14 +172,20 @@ function drawShip(ctx, radius, options) {
     ctx.restore();
 }
 
-function drawPacman(ctx, x, y, radius, openFactor) {
+function drawPacman(ctx, radius, openFactor) {
+    let angle = 0.2 * Math.PI * openFactor;
+
     ctx.save();
 
-    ctx.beginPath();
-    ctx.arc(x, y, radius, 0.25 * Math.PI * openFactor, -0.25 * Math.PI * openFactor);
-    ctx.lineTo(x, y);
     ctx.fillStyle = "yellow";
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    ctx.arc(0, 0, radius, angle, -angle);
+    ctx.lineTo(0, 0);
+    ctx.closePath();
     ctx.fill();
+    ctx.stroke();
 
     ctx.restore();
 }
