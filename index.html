@@ -12,23 +12,30 @@
 <script>
     let context = document.getElementById("asteroids").getContext("2d");
 
-    let asteroid = new Asteroid(24, 50, 0.2);
+    let asteroids = [
+        new Asteroid(24, 50, 0.2),
+        new Asteroid(24, 50, 0.5),
+        new Asteroid(5, 50, 0.2)
+    ];
 
     function draw(ctx, guide) {
         if (guide) {
             drawGrid(ctx);
         }
 
-        asteroid.draw(ctx, guide);
+        asteroids.forEach(function(asteroid) {
+            asteroid.draw(ctx, guide)
+        });
     }
 
     function update(elapsed) {
-        asteroid.update(elapsed);
+        asteroids.forEach(function(asteroid) {
+            asteroid.update(elapsed);
+        });
     }
 
     let previousTimestamp, elapsed;
     function frame(timestamp) {
-        console.log(timestamp);
         context.clearRect(0, 0, context.canvas.width, context.canvas.height);
         if (!previousTimestamp) previousTimestamp = timestamp;
         elapsed = timestamp - previousTimestamp;
