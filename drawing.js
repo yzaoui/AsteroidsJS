@@ -189,3 +189,56 @@ function drawPacman(ctx, radius, openFactor) {
 
     ctx.restore();
 }
+
+function drawGhost(ctx, bodyHeight, options_) {
+    let options = options_ || {};
+    let ridges = options.ridges || 4;
+    let bodyWidth = bodyHeight * 0.8;
+    let ridgeRadius = bodyWidth / ridges;
+
+    ctx.save();
+
+    ctx.strokeStyle = options.strokeStyle || "white";
+    ctx.fillStyle = options.fillStyle || "red";
+    ctx.lineWidth = options.lineWidth || bodyHeight * 0.05;
+
+    // Assuming center of ghost is at (0,0)
+    ctx.beginPath();
+
+    for (let ridge = 0; ridge < ridges; ridge++) {
+        ctx.arc(
+            (2 * ridgeRadius * (ridges - ridge)) - bodyWidth - ridgeRadius,
+            bodyHeight - ridgeRadius,
+            ridgeRadius,
+            0,
+            Math.PI
+        );
+    }
+    ctx.arc(0, bodyWidth - bodyHeight, bodyWidth, Math.PI, 2 * Math.PI);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    /* Eyes */
+    let horizontalEyeDistanceFromCenter = bodyWidth * 0.4;
+    let verticalEyeDistanceFromCenter = bodyHeight * 0.25;
+    let eyeRadius = bodyWidth * 0.3;
+    ctx.fillStyle = "white";
+    ctx.beginPath();
+    ctx.arc(-horizontalEyeDistanceFromCenter, -verticalEyeDistanceFromCenter, eyeRadius, 0, 2 * Math.PI);
+    ctx.moveTo(horizontalEyeDistanceFromCenter, -verticalEyeDistanceFromCenter);
+    ctx.arc(horizontalEyeDistanceFromCenter, -verticalEyeDistanceFromCenter, eyeRadius, 0, 2 * Math.PI);
+    ctx.fill();
+
+    /* Pupils */
+    let horizontalDistanceFromCenterOfEye = eyeRadius * 0.3;
+    let pupilRadius = eyeRadius * 0.5;
+    ctx.fillStyle = "black";
+    ctx.beginPath();
+    ctx.arc(horizontalEyeDistanceFromCenter - horizontalDistanceFromCenterOfEye, -verticalEyeDistanceFromCenter, pupilRadius, 0, 2 * Math.PI);
+    ctx.moveTo(-horizontalEyeDistanceFromCenter - horizontalDistanceFromCenterOfEye, -verticalEyeDistanceFromCenter);
+    ctx.arc(-horizontalEyeDistanceFromCenter - horizontalDistanceFromCenterOfEye, -verticalEyeDistanceFromCenter, pupilRadius, 0, 2 * Math.PI);
+    ctx.fill();
+
+    ctx.restore();
+}

@@ -116,3 +116,31 @@ Pacman.prototype.update = function(elapsed, width, height) {
     this.time += elapsed;
     this.mouthAngle = Math.abs(Math.sin(2 * Math.PI * this.time));
 };
+
+function Ghost(x, y, bodyHeight, speed, color) {
+    this.x = x;
+    this.y = y;
+    this.bodyHeight = bodyHeight;
+    this.speed = speed;
+    this.color = color;
+}
+
+Ghost.prototype.draw = function(ctx) {
+    ctx.save();
+
+    ctx.translate(this.x, this.y);
+    drawGhost(ctx, this.bodyHeight, {
+        fillStyle: this.color,
+        ridges: 5
+    });
+
+    ctx.restore();
+};
+
+Ghost.prototype.update = function(target, elapsed) {
+    let angle = Math.atan2(target.y - this.y, target.x - this.x);
+    let vx = Math.cos(angle) * this.speed;
+    let vy = Math.sin(angle) * this.speed;
+    this.x += vx * elapsed;
+    this.y += vy * elapsed;
+};
