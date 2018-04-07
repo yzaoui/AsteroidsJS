@@ -1,50 +1,55 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Animation</title>
+    <title>Asteroids</title>
     <link rel="stylesheet" href="styles.css">
     <script src="drawing.js"></script>
     <script src="objects.js"></script>
 </head>
 <body>
-<h1>Animation</h1>
-<canvas id="pacman" width="300" height="300"></canvas>
+<h1>Asteroids</h1>
+<canvas id="asteroids" width="600" height="600"></canvas>
 <script>
-    let context = document.getElementById("pacman").getContext("2d");
+    "use strict";
+    let context = document.getElementById("asteroids").getContext("2d");
 
-    let pacman = new Pacman(150, 150, 20, 120);
-    let ghosts = [
-        new Ghost(Math.random() * 300, Math.random() * 300, 20, 70, "red"),
-        new Ghost(Math.random() * 300, Math.random() * 300, 20, 60, "pink"),
-        new Ghost(Math.random() * 300, Math.random() * 300, 20, 50, "cyan"),
-        new Ghost(Math.random() * 300, Math.random() * 300, 20, 40, "orange"),
-    ];
+    let asteroids = [];
+    for (let i = 0; i < 4; i++) {
+        let asteroid = new Asteroid(
+            Math.random() * context.canvas.width,
+            Math.random() * context.canvas.height,
+            2000 + Math.random() * 8000
+        );
 
-    function draw(ctx, guide) {
-        if (guide) {
-            drawGrid(ctx);
-        }
-
-        pacman.draw(ctx);
-        ghosts.forEach(function(ghost) {
-            ghost.draw(ctx)
-        });
+        asteroid.push(Math.random() * 2 * Math.PI, 2000, 60);
+        asteroid.twist((Math.random() - 0.5) * 500, 60);
+        asteroids.push(asteroid);
     }
 
-    function update(elapsed) {
-        pacman.update(elapsed, 300, 300);
-        ghosts.forEach(function(ghost) {
-            ghost.update(pacman, elapsed);
+    let ship = new Ship(context.canvas.width / 2, context.canvas.height / 2);
+
+    function draw(ctx) {
+        drawGrid(ctx);
+        asteroids.forEach(function(asteroid) {
+            asteroid.draw(context);
         });
+        ship.draw(context);
     }
 
-    let previousTimestamp, elapsed;
+    function update(elapsedMS) {
+        asteroids.forEach(function(asteroid) {
+            asteroid.update(elapsedMS, context);
+        });
+        ship.update(elapsedMS, context);
+    }
+
+    let previousTimestamp;
     function frame(timestamp) {
-        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
         if (!previousTimestamp) previousTimestamp = timestamp;
-        elapsed = timestamp - previousTimestamp;
+        let elapsed = timestamp - previousTimestamp;
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
         update(elapsed / 1000);
-        draw(context, true);
+        draw(context);
         previousTimestamp = timestamp;
         window.requestAnimationFrame(frame);
     }

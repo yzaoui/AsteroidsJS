@@ -1,39 +1,17 @@
-function Asteroid(segments, radius, noise) {
-    this.x = context.canvas.width * Math.random();
-    this.y = context.canvas.height * Math.random();
-    this.angle = 0;
-    this.vx = context.canvas.width * (Math.random() - 0.5);
-    this.vy = context.canvas.height * (Math.random() - 0.5);
-    this.vrotation = 2 * Math.PI * (Math.random() - 0.5);
-    this.radius = radius;
-    this.noise = noise;
+function Asteroid(x, y, mass, vx, vy, vrotation) {
+    let density = 1; // kg / pixel^2
+    let radius = Math.sqrt((mass / density) / Math.PI);
+    this.super(x, y, mass, radius, 0, vx, vy, vrotation);
+    this.circumference = 2 * Math.PI * this.radius;
+    this.segments = Math.min(25, Math.max(5, Math.ceil(this.circumference / 15))); // Constrain number of segments to [5, 25]
+    this.noise = 0.2;
     this.shape = [];
-    for (let i = 0; i < segments; i++) {
+
+    for (let i = 0; i < this.segments; i++) {
         this.shape.push(Math.random() - 0.5);
     }
 }
-
-Asteroid.prototype.update = function(elapsed) {
-    if (this.x - this.radius + elapsed * this.vx > context.canvas.width) {
-        this.x = -this.radius;
-    }
-
-    if (this.x + this.radius + elapsed * this.vx < 0) {
-        this.x = context.canvas.width + this.radius;
-    }
-
-    if (this.y - this.radius + elapsed * this.vy > context.canvas.height) {
-        this.y = -this.radius;
-    }
-
-    if (this.y + this.radius + elapsed * this.vy < 0) {
-        this.y = context.canvas.height + this.radius;
-    }
-
-    this.x += elapsed * this.vx;
-    this.y += elapsed * this.vy;
-    this.angle = (this.angle + elapsed * this.vrotation) % (2 * Math.PI);
-};
+extend(Asteroid, Mass);
 
 Asteroid.prototype.draw = function(ctx, guide) {
     ctx.save();
@@ -143,4 +121,94 @@ Ghost.prototype.update = function(target, elapsed) {
     let vy = Math.sin(angle) * this.speed;
     this.x += vx * elapsed;
     this.y += vy * elapsed;
+};
+
+function extend(ChildClass, ParentClass) {
+    let parent = new ParentClass();
+    ChildClass.prototype = parent;
+    ChildClass.prototype.super = parent.constructor;
+    ChildClass.prototype.constructor = ChildClass;
+}
+
+function Mass(x, y, mass, radius, angle, vx, vy, vrotation) {
+    this.x = x;
+    this.y = y;
+    this.mass = mass || 1;
+    this.radius = radius || 50;
+    this.angle = angle || 0;
+    this.vx = vx || 0;
+    this.vy = vy || 0;
+    this.vrotation = vrotation || 0;
+}
+
+Mass.prototype.update = function(elapsed, ctx) {
+    this.x += this.vx * elapsed;
+    this.y += this.vy * elapsed;
+    this.angle = (this.angle + this.vrotation * elapsed) % (2 * Math.PI);
+
+    // Horizontal wrapping
+    if (this.x - this.radius > ctx.canvas.width) { // if left edge is beyond right screen boundary
+        this.x = -this.radius;
+    } else if (this.x + this.radius < 0) { // if right edge is beyond left screen boundary
+        this.x = ctx.canvas.width + this.radius;
+    }
+
+    // Vertical wrapping
+    if (this.y - this.radius > ctx.canvas.height) { // if top edge is beyond bottom screen boundary
+        this.y = -this.radius;
+    } else if (this.y + this.radius < 0) { // if bottom edge is beyond top screen boundary
+        this.y = ctx.canvas.height + this.radius;
+    }
+};
+
+Mass.prototype.push = function(angle, force, elapsed) {
+    this.vx += elapsed * (Math.cos(angle) * force) / this.mass;
+    this.vy += elapsed * (Math.sin(angle) * force) / this.mass;
+};
+
+Mass.prototype.twist = function(force, elapsed) {
+    this.vrotation += elapsed * force / this.mass;
+};
+
+Mass.prototype.speed = function() {
+    return Math.sqrt(Math.pow(this.vx, 2) + Math.pow(this.vy, 2));
+};
+
+Mass.prototype.movementAngle = function() {
+    return Math.atan2(this.vy, this.vx);
+};
+
+Mass.prototype.draw = function(ctx) {
+    ctx.save();
+
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.angle);
+    ctx.beginPath();
+
+    ctx.arc(0, 0, this.radius, 0, 2 * Math.PI);
+    ctx.lineTo(0, 0);
+    ctx.strokeStyle = "#FFFFFF";
+    ctx.stroke();
+
+    ctx.restore();
+};
+
+function Ship(x, y) {
+    this.super(x, y, 10, 20, 1.5 * Math.PI);
+}
+extend(Ship, Mass);
+
+Ship.prototype.draw = function(ctx, guide) {
+    ctx.save();
+
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.angle);
+    ctx.strokeStyle = "#FFFFFF";
+    ctx.lineWidth = 2;
+    ctx.fillStyle = "#000000";
+    drawShip(ctx, this.radius, {
+        guide: guide
+    });
+
+    ctx.restore()
 };
