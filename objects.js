@@ -46,6 +46,30 @@ Pacman.prototype.draw = function(ctx) {
     ctx.restore();
 };
 
+Pacman.prototype.moveRight = function() {
+    this.vx = this.speed;
+    this.vy = 0;
+    this.angle = 0;
+};
+
+Pacman.prototype.moveDown = function() {
+    this.vx = 0;
+    this.vy = this.speed;
+    this.angle = 0.5 * Math.PI;
+};
+
+Pacman.prototype.moveLeft = function() {
+    this.vx = -this.speed;
+    this.vy = 0;
+    this.angle = Math.PI;
+};
+
+Pacman.prototype.moveUp = function() {
+    this.vx = 0;
+    this.vy = -this.speed;
+    this.angle = 1.5 * Math.PI;
+}
+
 Pacman.prototype.turnCCW = function() {
     this.turn(-1);
 };
@@ -68,27 +92,18 @@ Pacman.prototype.turn = function(direction) {
 };
 
 Pacman.prototype.update = function(elapsed, width, height) {
-    // ~ Once per 100 frames
-    if (Math.random() <= 0.01) {
-        if (Math.random() < 0.5) {
-            this.turnCCW();
-        } else {
-            this.turnCW();
-        }
-    }
-
     if (this.x - this.radius + elapsed * this.vx > width) {
         this.x = -this.radius;
-    }
-    if (this.x + this.radius + elapsed * this.vx < 0) {
+    } else if (this.x + this.radius + elapsed * this.vx < 0) {
         this.x = width + this.radius;
     }
+
     if (this.y - this.radius + elapsed * this.vy > height) {
         this.y = -this.radius;
-    }
-    if (this.y + this.radius + elapsed * this.vy < 0) {
+    } else if (this.y + this.radius + elapsed * this.vy < 0) {
         this.y = height + this.radius;
     }
+
     this.x += this.vx * elapsed;
     this.y += this.vy * elapsed;
     this.time += elapsed;

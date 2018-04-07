@@ -8,7 +8,7 @@
 </head>
 <body>
 <h1>Pacman</h1>
-<canvas id="pacman" width="300" height="300"></canvas>
+<canvas id="pacman" width="300" height="300" tabindex="1"></canvas>
 <script>
     let context = document.getElementById("pacman").getContext("2d");
 
@@ -50,6 +50,32 @@
     }
 
     window.requestAnimationFrame(frame);
+
+    function keydownHandler(e) {
+        let notHandled = false;
+        switch (e.key) {
+            case "ArrowLeft":
+                pacman.moveLeft();
+                break;
+            case "ArrowUp":
+                pacman.moveUp();
+                break;
+            case "ArrowRight":
+                pacman.moveRight();
+                break;
+            case "ArrowDown":
+                pacman.moveDown();
+                break;
+            default:
+                notHandled = true;
+                break;
+        }
+
+        if (!notHandled) e.preventDefault();
+    }
+
+    context.canvas.addEventListener("keydown", keydownHandler)
+    context.canvas.focus();
 </script>
 </body>
 </html>
