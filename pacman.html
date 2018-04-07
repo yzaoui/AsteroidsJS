@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pacman</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="drawing.js"></script>
+    <script src="objects.js"></script>
+</head>
+<body>
+<h1>Pacman</h1>
+<canvas id="pacman" width="300" height="300"></canvas>
+<script>
+    let context = document.getElementById("pacman").getContext("2d");
+
+    let pacman = new Pacman(150, 150, 20, 120);
+    let ghosts = [
+        new Ghost(Math.random() * 300, Math.random() * 300, 20, 70, "red"),
+        new Ghost(Math.random() * 300, Math.random() * 300, 20, 60, "pink"),
+        new Ghost(Math.random() * 300, Math.random() * 300, 20, 50, "cyan"),
+        new Ghost(Math.random() * 300, Math.random() * 300, 20, 40, "orange"),
+    ];
+
+    function draw(ctx, guide) {
+        if (guide) {
+            drawGrid(ctx);
+        }
+
+        pacman.draw(ctx);
+        ghosts.forEach(function(ghost) {
+            ghost.draw(ctx)
+        });
+    }
+
+    function update(elapsed) {
+        pacman.update(elapsed, 300, 300);
+        ghosts.forEach(function(ghost) {
+            ghost.update(pacman, elapsed);
+        });
+    }
+
+    let previousTimestamp, elapsed;
+    function frame(timestamp) {
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+        if (!previousTimestamp) previousTimestamp = timestamp;
+        elapsed = timestamp - previousTimestamp;
+        update(elapsed / 1000);
+        draw(context, true);
+        previousTimestamp = timestamp;
+        window.requestAnimationFrame(frame);
+    }
+
+    window.requestAnimationFrame(frame);
+</script>
+</body>
+</html>
