@@ -114,7 +114,7 @@ function drawShip(ctx, radius, options) {
     ctx.fill();
     ctx.stroke();
 
-    if (options.thrusterOn) {
+    if (options.forwardThrusterOn) {
         ctx.save();
 
         ctx.strokeStyle = "yellow";

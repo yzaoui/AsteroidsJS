@@ -211,7 +211,10 @@ Mass.prototype.draw = function(ctx) {
 function Ship(x, y, power) {
     this.super(x, y, 10, 20, 1.5 * Math.PI);
     this.thrusterPower = power;
-    this.thrusterOn = false;
+    this.steeringPower = power / 20;
+    this.leftThrusterOn = false;
+    this.rightThrusterOn = false;
+    this.forwardThrusterOn = false;
 }
 extend(Ship, Mass);
 
@@ -222,15 +225,22 @@ Ship.prototype.draw = function(ctx, guide) {
     ctx.rotate(this.angle);
     drawShip(ctx, this.radius, {
         guide: guide,
-        thrusterOn: this.thrusterOn
+        forwardThrusterOn: this.forwardThrusterOn
     });
 
     ctx.restore()
 };
 
 Ship.prototype.update = function(elapsed) {
-    if (this.thrusterOn) {
+    if (this.forwardThrusterOn) {
         this.push(this.angle, this.thrusterPower, elapsed);
     }
+
+    if (this.leftThrusterOn && !this.rightThrusterOn) {
+        this.twist(-this.steeringPower, elapsed);
+    } else if (this.rightThrusterOn && !this.leftThrusterOn) {
+        this.twist(this.steeringPower, elapsed);
+    }
+
     Mass.prototype.update.apply(this, arguments);
 };

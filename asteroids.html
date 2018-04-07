@@ -27,13 +27,17 @@
     }
 
     let ship = new Ship(context.canvas.width / 2, context.canvas.height / 2, 1000);
+    let guide = false;
 
     function draw(ctx) {
-        drawGrid(ctx);
+        if (guide) {
+            drawGrid(ctx);
+        }
+
         asteroids.forEach(function(asteroid) {
-            asteroid.draw(context);
+            asteroid.draw(context, guide);
         });
-        ship.draw(context);
+        ship.draw(context, guide);
     }
 
     function update(elapsedMS) {
@@ -61,7 +65,16 @@
 
         switch (e.key) {
             case "ArrowUp":
-                ship.thrusterOn = thrusterOn;
+                ship.forwardThrusterOn = thrusterOn;
+                break;
+            case "ArrowLeft":
+                ship.leftThrusterOn = thrusterOn;
+                break;
+            case "ArrowRight":
+                ship.rightThrusterOn = thrusterOn;
+                break;
+            case "g":
+                if (thrusterOn) guide = !guide;
                 break;
             default:
                 notHandled = true;
@@ -78,7 +91,7 @@
         keyHandler(e, false);
     }, true);
 
-
+    context.canvas.focus();
 </script>
 </body>
 </html>
