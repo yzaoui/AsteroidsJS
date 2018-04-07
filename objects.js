@@ -208,8 +208,10 @@ Mass.prototype.draw = function(ctx) {
     ctx.restore();
 };
 
-function Ship(x, y) {
+function Ship(x, y, power) {
     this.super(x, y, 10, 20, 1.5 * Math.PI);
+    this.thrusterPower = power;
+    this.thrusterOn = false;
 }
 extend(Ship, Mass);
 
@@ -218,12 +220,17 @@ Ship.prototype.draw = function(ctx, guide) {
 
     ctx.translate(this.x, this.y);
     ctx.rotate(this.angle);
-    ctx.strokeStyle = "#FFFFFF";
-    ctx.lineWidth = 2;
-    ctx.fillStyle = "#000000";
     drawShip(ctx, this.radius, {
-        guide: guide
+        guide: guide,
+        thrusterOn: this.thrusterOn
     });
 
     ctx.restore()
+};
+
+Ship.prototype.update = function(elapsed) {
+    if (this.thrusterOn) {
+        this.push(this.angle, this.thrusterPower, elapsed);
+    }
+    Mass.prototype.update.apply(this, arguments);
 };

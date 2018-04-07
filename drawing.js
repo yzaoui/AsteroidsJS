@@ -114,6 +114,29 @@ function drawShip(ctx, radius, options) {
     ctx.fill();
     ctx.stroke();
 
+    if (options.thrusterOn) {
+        ctx.save();
+
+        ctx.strokeStyle = "yellow";
+        ctx.fillStyle = "red";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(
+            Math.cos(Math.PI + angle * 0.8) * radius / 2,
+            Math.sin(Math.PI + angle * 0.8) * radius / 2
+        );
+        ctx.quadraticCurveTo(
+            -radius * 2,
+            0,
+            Math.cos(Math.PI - angle * 0.8) * radius / 2,
+            Math.sin(Math.PI - angle * 0.8) * radius / 2
+        );
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
     // Guide line / point for the curve-pulling point
     if (options.guide) {
         ctx.strokeStyle = "white";

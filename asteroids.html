@@ -8,7 +8,7 @@
 </head>
 <body>
 <h1>Asteroids</h1>
-<canvas id="asteroids" width="600" height="600"></canvas>
+<canvas id="asteroids" width="600" height="600" tabindex="1"></canvas>
 <script>
     "use strict";
     let context = document.getElementById("asteroids").getContext("2d");
@@ -26,7 +26,7 @@
         asteroids.push(asteroid);
     }
 
-    let ship = new Ship(context.canvas.width / 2, context.canvas.height / 2);
+    let ship = new Ship(context.canvas.width / 2, context.canvas.height / 2, 1000);
 
     function draw(ctx) {
         drawGrid(ctx);
@@ -37,14 +37,6 @@
     }
 
     function update(elapsedMS) {
-        if (ship.speed() < 15) {
-            ship.angle += 2 * Math.PI * 0.01;
-        } else if (ship.speed() > 100) {
-            ship.angle = ship.movementAngle() + Math.PI;
-        }
-
-        ship.push(ship.angle, 1000, elapsedMS);
-
         asteroids.forEach(function(asteroid) {
             asteroid.update(elapsedMS, context);
         });
@@ -63,6 +55,30 @@
     }
 
     window.requestAnimationFrame(frame);
+
+    function keyHandler(e, thrusterOn) {
+        let notHandled = false;
+
+        switch (e.key) {
+            case "ArrowUp":
+                ship.thrusterOn = thrusterOn;
+                break;
+            default:
+                notHandled = true;
+        }
+
+        if (!notHandled) e.preventDefault();
+    }
+
+    context.canvas.addEventListener("keydown", function(e) {
+        keyHandler(e, true);
+    }, true);
+
+    context.canvas.addEventListener("keyup", function(e) {
+        keyHandler(e, false);
+    }, true);
+
+
 </script>
 </body>
 </html>
