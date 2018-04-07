@@ -37,6 +37,14 @@
     }
 
     function update(elapsedMS) {
+        if (ship.speed() < 15) {
+            ship.angle += 2 * Math.PI * 0.01;
+        } else if (ship.speed() > 100) {
+            ship.angle = ship.movementAngle() + Math.PI;
+        }
+
+        ship.push(ship.angle, 1000, elapsedMS);
+
         asteroids.forEach(function(asteroid) {
             asteroid.update(elapsedMS, context);
         });
