@@ -161,18 +161,25 @@ Mass.prototype.update = function(elapsed, ctx) {
     this.y += this.vy * elapsed;
     this.angle = (this.angle + this.vrotation * elapsed) % (2 * Math.PI);
 
-    // Horizontal wrapping
-    if (this.x - this.radius > ctx.canvas.width) { // if left edge is beyond right screen boundary
-        this.x = -this.radius;
-    } else if (this.x + this.radius < 0) { // if right edge is beyond left screen boundary
-        this.x = ctx.canvas.width + this.radius;
+    // If out of horizontal bounds
+    if (this.x > ctx.canvas.width + this.radius || this.x < ctx.canvas.width - this.radius) {
+        // Mass is allowed to go its own radius beyond the screen, thus the width
+        // to wrap around is the game's width + its own radius on both sides
+        const widthToWrapAround = ctx.canvas.width + 2 * this.radius;
+        // Shift calculations by the mass' radius since the widthToWrapAround is shifted by 1 radius
+        const newX = (this.x + this.radius) % widthToWrapAround;
+
+        // Convert remainder to modulo, and undo shift by 1 radius
+        this.x = (newX >= 0 ? newX : newX + widthToWrapAround) - this.radius;
     }
 
-    // Vertical wrapping
-    if (this.y - this.radius > ctx.canvas.height) { // if top edge is beyond bottom screen boundary
-        this.y = -this.radius;
-    } else if (this.y + this.radius < 0) { // if bottom edge is beyond top screen boundary
-        this.y = ctx.canvas.height + this.radius;
+    // If out of vertical bounds
+    if (this.y > ctx.canvas.height + this.radius || this.y < ctx.canvas.height - this.radius) {
+        // Same logic as above block
+        const heightToWrapAround = ctx.canvas.height + 2 * this.radius;
+        const newY = (this.y + this.radius) % heightToWrapAround;
+
+        this.y = (newY >= 0 ? newY : newY + heightToWrapAround) - this.radius;
     }
 };
 
