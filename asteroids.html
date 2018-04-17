@@ -21,12 +21,13 @@
             2000 + Math.random() * 8000
         );
 
-        asteroid.push(Math.random() * 2 * Math.PI, 2000, 60);
-        asteroid.twist((Math.random() - 0.5) * 500, 60);
+        asteroid.push(Math.random() * 2 * Math.PI, 2, 60);
+        asteroid.twist((Math.random() - 0.5) * 0.5, 60);
         asteroids.push(asteroid);
     }
 
-    let ship = new Ship(context.canvas.width / 2, context.canvas.height / 2, 1000);
+    let ship = new Ship(context.canvas.width / 2, context.canvas.height / 2, 10, 20, 0.001);
+    let projectiles = [];
     let guide = false;
 
     function draw(ctx) {
@@ -37,14 +38,28 @@
         asteroids.forEach(function(asteroid) {
             asteroid.draw(context, guide);
         });
+        projectiles.forEach(function(projectile) {
+            projectile.draw(context)
+        });
         ship.draw(context, guide);
     }
 
-    function update(elapsedMS) {
+    function update(elapsed) {
+        const elapsedMS = elapsed * 1000;
+
         asteroids.forEach(function(asteroid) {
             asteroid.update(elapsedMS, context);
         });
         ship.update(elapsedMS, context);
+        projectiles.forEach(function(projectile, i, projectiles) {
+            projectile.update(elapsedMS, context);
+            if (projectile.lifePercentage <= 0) {
+                projectiles.splice(i, 1);
+            }
+        });
+        if (ship.trigger && ship.loaded) {
+            projectiles.push(ship.projectile(elapsedMS));
+        }
     }
 
     let previousTimestamp;
@@ -72,6 +87,9 @@
                 break;
             case "ArrowRight":
                 ship.rightThrusterOn = thrusterOn;
+                break;
+            case " ":
+                ship.trigger = thrusterOn;
                 break;
             case "g":
                 if (thrusterOn) guide = !guide;

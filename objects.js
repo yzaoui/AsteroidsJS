@@ -156,10 +156,10 @@ function Mass(x, y, mass, radius, angle, vx, vy, vrotation) {
     this.vrotation = vrotation || 0;
 }
 
-Mass.prototype.update = function(elapsed, ctx) {
-    this.x += this.vx * elapsed;
-    this.y += this.vy * elapsed;
-    this.angle = (this.angle + this.vrotation * elapsed) % (2 * Math.PI);
+Mass.prototype.update = function(elapsedMS, ctx) {
+    this.x += this.vx * elapsedMS;
+    this.y += this.vy * elapsedMS;
+    this.angle = (this.angle + this.vrotation * elapsedMS) % (2 * Math.PI);
 
     // If out of horizontal bounds
     if (this.x > ctx.canvas.width + this.radius || this.x < ctx.canvas.width - this.radius) {
@@ -183,13 +183,13 @@ Mass.prototype.update = function(elapsed, ctx) {
     }
 };
 
-Mass.prototype.push = function(angle, force, elapsed) {
-    this.vx += elapsed * (Math.cos(angle) * force) / this.mass;
-    this.vy += elapsed * (Math.sin(angle) * force) / this.mass;
+Mass.prototype.push = function(angle, force, elapsedMS) {
+    this.vx += elapsedMS * (Math.cos(angle) * force) / this.mass;
+    this.vy += elapsedMS * (Math.sin(angle) * force) / this.mass;
 };
 
-Mass.prototype.twist = function(force, elapsed) {
-    this.vrotation += elapsed * force / this.mass;
+Mass.prototype.twist = function(force, elapsedMS) {
+    this.vrotation += elapsedMS * force / this.mass;
 };
 
 Mass.prototype.speed = function() {
@@ -215,13 +215,17 @@ Mass.prototype.draw = function(ctx) {
     ctx.restore();
 };
 
-function Ship(x, y, power) {
-    this.super(x, y, 10, 20, 1.5 * Math.PI);
+function Ship(x, y, mass, radius, power, weaponPower) {
+    this.super(x, y, mass, radius, 1.5 * Math.PI);
     this.thrusterPower = power;
     this.steeringPower = power / 20;
     this.leftThrusterOn = false;
     this.rightThrusterOn = false;
     this.forwardThrusterOn = false;
+    this.weaponPower = weaponPower || 0.0002;
+    this.loaded = false;
+    this.weaponReloadTimeMS = 250;
+    this.timeMSUntilReloaded = this.weaponReloadTimeMS;
 }
 extend(Ship, Mass);
 
@@ -238,16 +242,65 @@ Ship.prototype.draw = function(ctx, guide) {
     ctx.restore()
 };
 
-Ship.prototype.update = function(elapsed) {
+Ship.prototype.update = function(elapsedMS) {
     if (this.forwardThrusterOn) {
-        this.push(this.angle, this.thrusterPower, elapsed);
+        this.push(this.angle, this.thrusterPower, elapsedMS);
     }
 
     if (this.leftThrusterOn && !this.rightThrusterOn) {
-        this.twist(-this.steeringPower, elapsed);
+        this.twist(-this.steeringPower, elapsedMS);
     } else if (this.rightThrusterOn && !this.leftThrusterOn) {
-        this.twist(this.steeringPower, elapsed);
+        this.twist(this.steeringPower, elapsedMS);
+    }
+
+    // Reload as necessary
+    this.loaded = this.timeMSUntilReloaded === 0;
+    if (!this.loaded) {
+        this.timeMSUntilReloaded -= Math.min(elapsedMS, this.timeMSUntilReloaded);
     }
 
     Mass.prototype.update.apply(this, arguments);
+};
+
+Ship.prototype.projectile = function(elapsed) {
+    let projectile = new Projectile(
+        0.025,
+        3000,
+        this.x + Math.cos(this.angle) * this.radius,
+        this.y + Math.sin(this.angle) * this.radius,
+        this.vx,
+        this.vy,
+        this.vrotation
+    );
+
+    projectile.push(this.angle, this.weaponPower, elapsed);
+    this.push(this.angle + Math.PI, this.weaponPower, elapsed);
+
+    this.timeMSUntilReloaded = this.weaponReloadTimeMS;
+
+    return projectile;
+};
+
+function Projectile(mass, lifetimeMS, x, y, vx, vy, vrotation) {
+    let density = 0.001;
+    let radius = Math.sqrt((mass / density) / Math.PI);
+    this.super(x, y, mass, radius, 0, vx, vy, vrotation);
+    this.lifetimeMS = lifetimeMS;
+    this.lifePercentage = 1;
+}
+extend(Projectile, Mass);
+
+Projectile.prototype.update = function(elapsedMS, ctx) {
+    this.lifePercentage -= (elapsedMS / this.lifetimeMS);
+    Mass.prototype.update.apply(this, arguments);
+};
+
+Projectile.prototype.draw = function(ctx) {
+    ctx.save();
+
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.angle);
+    drawProjectile(ctx, this.radius, this.lifePercentage);
+
+    ctx.restore();
 };

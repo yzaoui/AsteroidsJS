@@ -38,9 +38,9 @@ function drawGrid(ctx, minor_, major_, stroke_, fill_) {
 
 function drawAsteroid(ctx, radius, shape, options_) {
     let options = options_ || {};
+    ctx.save();
     ctx.strokeStyle = options.stroke || "white";
     ctx.fillStyle = options.fill || "black";
-    ctx.save();
 
     ctx.beginPath();
     for (let i = 0; i < shape.length; i++) {
@@ -261,6 +261,17 @@ function drawGhost(ctx, bodyHeight, options_) {
     ctx.arc(horizontalEyeDistanceFromCenter - horizontalDistanceFromCenterOfEye, -verticalEyeDistanceFromCenter, pupilRadius, 0, 2 * Math.PI);
     ctx.moveTo(-horizontalEyeDistanceFromCenter - horizontalDistanceFromCenterOfEye, -verticalEyeDistanceFromCenter);
     ctx.arc(-horizontalEyeDistanceFromCenter - horizontalDistanceFromCenterOfEye, -verticalEyeDistanceFromCenter, pupilRadius, 0, 2 * Math.PI);
+    ctx.fill();
+
+    ctx.restore();
+}
+
+function drawProjectile(ctx, radius, lifePercentage) {
+    ctx.save();
+
+    ctx.fillStyle = "rgb(100%, 100%, " + (100 * lifePercentage) + "%)";
+    ctx.beginPath();
+    ctx.arc(0, 0, radius, 0, 2 * Math.PI);
     ctx.fill();
 
     ctx.restore();
