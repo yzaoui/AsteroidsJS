@@ -12,6 +12,21 @@ let AsteroidsGame = function(canvasId) {
     this.canvas.focus();
     this.guide = false;
     this.asteroidPush = 2;
+    this.healthIndicator = new Indicator("health", 5, 5, 100, 10);
+    this.massLostOnCollision = 500;
+    this.scoreIndicator = new NumberIndicator("score", this.canvas.width - 10, 5);
+    this.fps = 0;
+    this.fpsIndicator = new NumberIndicator("fps", this.canvas.width - 10, this.canvas.height - 15, {digits: 2});
+    this.message = new Message(this.canvas.width / 2, this.canvas.height / 2 * 0.4);
+    this.canvas.addEventListener("keydown", this.keyDown.bind(this), true);
+    this.canvas.addEventListener("keyup", this.keyUp.bind(this), true);
+    window.requestAnimationFrame(this.frame.bind(this));
+    this.resetGame();
+};
+
+AsteroidsGame.prototype.resetGame = function() {
+    this.gameOver = false;
+    this.score = 0;
     this.ship = new Ship(
         this.canvas.width / 2,
         this.canvas.height / 2,
@@ -22,17 +37,6 @@ let AsteroidsGame = function(canvasId) {
     this.projectiles = [];
     this.asteroids = [];
     this.asteroids.push(this.movingAsteroid(60));
-    this.healthIndicator = new Indicator("health", 5, 5, 100, 10);
-    this.massLostOnCollision = 500;
-    this.score = 0;
-    this.scoreIndicator = new NumberIndicator("score", this.canvas.width - 10, 5);
-    this.fps = 0;
-    this.fpsIndicator = new NumberIndicator("fps", this.canvas.width - 10, this.canvas.height - 15, {digits: 2});
-    this.gameOver = false;
-    this.message = new Message(this.canvas.width / 2, this.canvas.height / 2 * 0.4);
-    this.canvas.addEventListener("keydown", this.keyDown.bind(this), true);
-    this.canvas.addEventListener("keyup", this.keyUp.bind(this), true);
-    window.requestAnimationFrame(this.frame.bind(this));
 };
 
 AsteroidsGame.prototype.movingAsteroid = function(elapsedMS) {
@@ -101,7 +105,11 @@ AsteroidsGame.prototype.keyHandler = function(e, pressed) {
             this.ship.rightThrusterOn = pressed;
             break;
         case " ":
-            this.ship.triggerOn = pressed;
+            if (this.gameOver) {
+                this.resetGame();
+            } else {
+                this.ship.triggerOn = pressed;
+            }
             break;
         case "g":
             if (pressed) this.guide = !this.guide;
