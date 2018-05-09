@@ -25,6 +25,9 @@ let AsteroidsGame = function(canvasId) {
     this.healthIndicator = new Indicator("health", 5, 5, 100, 10);
     this.massLostOnCollision = 500;
     this.score = 0;
+    this.scoreIndicator = new NumberIndicator("score", this.canvas.width - 10, 5);
+    this.fps = 0;
+    this.fpsIndicator = new NumberIndicator("fps", this.canvas.width - 10, this.canvas.height - 15, {digits: 2});
     this.canvas.addEventListener("keydown", this.keyDown.bind(this), true);
     this.canvas.addEventListener("keyup", this.keyUp.bind(this), true);
     window.requestAnimationFrame(this.frame.bind(this));
@@ -111,6 +114,7 @@ AsteroidsGame.prototype.keyHandler = function(e, pressed) {
 AsteroidsGame.prototype.frame = function(timestamp) {
     if (!this.previousTimestamp) this.previousTimestamp = timestamp;
     let elapsedMS = (timestamp - this.previousTimestamp);
+    this.fps = 1000 / elapsedMS;
     this.update(elapsedMS);
     this.draw();
     this.previousTimestamp = timestamp;
@@ -152,6 +156,7 @@ AsteroidsGame.prototype.draw = function() {
         this.asteroids.forEach(function(asteroid) {
             drawLine(this.ctx, asteroid, this.ship);
         }, this);
+        this.fpsIndicator.draw(this.ctx, this.fps);
     }
 
     this.asteroids.forEach(function(asteroid) {
@@ -165,4 +170,5 @@ AsteroidsGame.prototype.draw = function() {
     }, this);
 
     this.healthIndicator.draw(this.ctx, this.ship.health / this.ship.maxHealth);
+    this.scoreIndicator.draw(this.ctx, this.score);
 };

@@ -345,3 +345,28 @@ Indicator.prototype.draw = function(ctx, filledPercentage) {
 
     ctx.restore();
 };
+
+function NumberIndicator(label, x, y, options_) {
+    let options = options_ || {};
+    this.label = label + ": ";
+    this.x = x;
+    this.y = y;
+    this.digits = options.digits || 0;
+    this.pt = options.pt || 10;
+    this.align = options.align || "end";
+}
+
+NumberIndicator.prototype.draw = function(ctx, value) {
+    ctx.save();
+
+    ctx.fillStyle = "white";
+    ctx.font = this.pt + "pt Arial";
+    ctx.textAlign = this.align;
+    ctx.fillText(
+        this.label + value.toFixed(this.digits),
+        this.x,
+        this.y + this.pt - 1
+    );
+
+    ctx.restore();
+};
