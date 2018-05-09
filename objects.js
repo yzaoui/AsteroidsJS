@@ -315,3 +315,29 @@ Projectile.prototype.draw = function(ctx) {
 
     ctx.restore();
 };
+
+function Indicator(label, x, y, width, height) {
+    this.label = label + ": ";
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+}
+
+Indicator.prototype.draw = function(ctx, filledPercentage) {
+    ctx.save();
+
+    ctx.strokeStyle = "white";
+    ctx.fillStyle = "white";
+    ctx.font = this.height + "pt Arial";
+    let offset = ctx.measureText(this.label).width;
+    ctx.fillText(this.label, this.x, this.y + this.height - 1);
+    ctx.beginPath();
+    ctx.rect(offset + this.x, this.y, this.width, this.height);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.rect(offset + this.x, this.y, this.width * filledPercentage, this.height);
+    ctx.fill();
+
+    ctx.restore();
+};

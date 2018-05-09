@@ -22,6 +22,7 @@ let AsteroidsGame = function(canvasId) {
     this.projectiles = [];
     this.asteroids = [];
     this.asteroids.push(this.movingAsteroid(60));
+    this.healthIndicator = new Indicator("health", 5, 5, 100, 10);
     this.canvas.addEventListener("keydown", this.keyDown.bind(this), true);
     this.canvas.addEventListener("keyup", this.keyUp.bind(this), true);
     window.requestAnimationFrame(this.frame.bind(this));
@@ -133,12 +134,5 @@ AsteroidsGame.prototype.draw = function() {
         projectile.draw(this.ctx)
     }, this);
 
-    // Draw healthbar
-    this.ctx.save();
-
-    this.ctx.font = "18px arial";
-    this.ctx.fillStyle = "white";
-    this.ctx.fillText("health: " + this.ship.health.toFixed(1), 10, this.canvas.height - 10);
-
-    this.ctx.restore();
+    this.healthIndicator.draw(this.ctx, this.ship.health / this.ship.maxHealth);
 };
