@@ -36,6 +36,19 @@ function drawGrid(ctx, minor_, major_, stroke_, fill_) {
     ctx.restore();
 }
 
+function drawLine(ctx, point1, point2) {
+    ctx.save();
+
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    ctx.moveTo(point1.x, point1.y);
+    ctx.lineTo(point2.x, point2.y);
+    ctx.stroke();
+
+    ctx.restore();
+}
+
 function drawAsteroid(ctx, radius, shape, options_) {
     let options = options_ || {};
     ctx.save();

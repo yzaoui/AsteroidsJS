@@ -5,111 +5,14 @@
     <link rel="stylesheet" href="styles.css">
     <script src="drawing.js"></script>
     <script src="objects.js"></script>
+    <script src="game.js"></script>
 </head>
 <body>
 <h1>Asteroids</h1>
 <canvas id="asteroids" width="600" height="600" tabindex="1"></canvas>
 <script>
     "use strict";
-    let context = document.getElementById("asteroids").getContext("2d");
-
-    let asteroids = [];
-    for (let i = 0; i < 4; i++) {
-        let asteroid = new Asteroid(
-            Math.random() * context.canvas.width,
-            Math.random() * context.canvas.height,
-            2000 + Math.random() * 8000
-        );
-
-        asteroid.push(Math.random() * 2 * Math.PI, 2, 60);
-        asteroid.twist((Math.random() - 0.5) * 0.5, 60);
-        asteroids.push(asteroid);
-    }
-
-    let ship = new Ship(context.canvas.width / 2, context.canvas.height / 2, 10, 20, 0.001);
-    let projectiles = [];
-    let guide = false;
-
-    function draw(ctx) {
-        if (guide) {
-            drawGrid(ctx);
-        }
-
-        asteroids.forEach(function(asteroid) {
-            asteroid.draw(context, guide);
-        });
-        projectiles.forEach(function(projectile) {
-            projectile.draw(context)
-        });
-        ship.draw(context, guide);
-    }
-
-    function update(elapsed) {
-        const elapsedMS = elapsed * 1000;
-
-        asteroids.forEach(function(asteroid) {
-            asteroid.update(elapsedMS, context);
-        });
-        ship.update(elapsedMS, context);
-        projectiles.forEach(function(projectile, i, projectiles) {
-            projectile.update(elapsedMS, context);
-            if (projectile.lifePercentage <= 0) {
-                projectiles.splice(i, 1);
-            }
-        });
-        if (ship.trigger && ship.loaded) {
-            projectiles.push(ship.projectile(elapsedMS));
-        }
-    }
-
-    let previousTimestamp;
-    function frame(timestamp) {
-        if (!previousTimestamp) previousTimestamp = timestamp;
-        let elapsed = timestamp - previousTimestamp;
-        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
-        update(elapsed / 1000);
-        draw(context);
-        previousTimestamp = timestamp;
-        window.requestAnimationFrame(frame);
-    }
-
-    window.requestAnimationFrame(frame);
-
-    function keyHandler(e, thrusterOn) {
-        let notHandled = false;
-
-        switch (e.key) {
-            case "ArrowUp":
-                ship.forwardThrusterOn = thrusterOn;
-                break;
-            case "ArrowLeft":
-                ship.leftThrusterOn = thrusterOn;
-                break;
-            case "ArrowRight":
-                ship.rightThrusterOn = thrusterOn;
-                break;
-            case " ":
-                ship.trigger = thrusterOn;
-                break;
-            case "g":
-                if (thrusterOn) guide = !guide;
-                break;
-            default:
-                notHandled = true;
-        }
-
-        if (!notHandled) e.preventDefault();
-    }
-
-    context.canvas.addEventListener("keydown", function(e) {
-        keyHandler(e, true);
-    }, true);
-
-    context.canvas.addEventListener("keyup", function(e) {
-        keyHandler(e, false);
-    }, true);
-
-    context.canvas.focus();
+    let game = new AsteroidsGame("asteroids")
 </script>
 </body>
 </html>
