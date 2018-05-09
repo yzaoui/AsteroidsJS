@@ -370,3 +370,26 @@ NumberIndicator.prototype.draw = function(ctx, value) {
 
     ctx.restore();
 };
+
+function Message(x, y, options_) {
+    let options = options_ || {};
+    this.x = x;
+    this.y = y;
+    this.mainPt = options.mainPt || 28;
+    this.subPt = options.subPt || 18;
+    this.fill = options.fill || "white";
+    this.textAlign = options.align || "center";
+}
+
+Message.prototype.draw = function(ctx, mainText, subText) {
+    ctx.save();
+
+    ctx.fillStyle = this.fill;
+    ctx.textAlign = this.textAlign;
+    ctx.font = this.mainPt + "pt Arial";
+    ctx.fillText(mainText, this.x, this.y);
+    ctx.font = this.subPt + "pt Arial";
+    ctx.fillText(subText, this.x, this.y + this.mainPt);
+
+    ctx.restore();
+};

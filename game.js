@@ -28,6 +28,8 @@ let AsteroidsGame = function(canvasId) {
     this.scoreIndicator = new NumberIndicator("score", this.canvas.width - 10, 5);
     this.fps = 0;
     this.fpsIndicator = new NumberIndicator("fps", this.canvas.width - 10, this.canvas.height - 15, {digits: 2});
+    this.gameOver = false;
+    this.message = new Message(this.canvas.width / 2, this.canvas.height / 2 * 0.4);
     this.canvas.addEventListener("keydown", this.keyDown.bind(this), true);
     this.canvas.addEventListener("keyup", this.keyUp.bind(this), true);
     window.requestAnimationFrame(this.frame.bind(this));
@@ -129,6 +131,12 @@ AsteroidsGame.prototype.update = function(elapsedMS) {
             this.ship.compromised = true;
         }
     }, this);
+
+    if (this.ship.health <= 0) {
+        this.gameOver = true;
+        return;
+    }
+
     this.ship.update(elapsedMS, this.ctx);
     this.projectiles.forEach(function(projectile, i) {
         projectile.update(elapsedMS, this.ctx);
@@ -162,6 +170,11 @@ AsteroidsGame.prototype.draw = function() {
     this.asteroids.forEach(function(asteroid) {
         asteroid.draw(this.ctx, this.guide);
     }, this);
+
+    if (this.gameOver) {
+        this.message.draw(this.ctx, "GAME OVER", "Press space to play again");
+        return;
+    }
 
     this.ship.draw(this.ctx, this.guide);
 
