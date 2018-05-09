@@ -17,6 +17,9 @@ let AsteroidsGame = function(canvasId) {
     this.scoreIndicator = new NumberIndicator("score", this.canvas.width - 10, 5);
     this.fps = 0;
     this.fpsIndicator = new NumberIndicator("fps", this.canvas.width - 10, this.canvas.height - 15, {digits: 2});
+    this.levelIndicator = new NumberIndicator("level", this.canvas.width / 2, 5, {
+        align: "center"
+    });
     this.message = new Message(this.canvas.width / 2, this.canvas.height / 2 * 0.4);
     this.canvas.addEventListener("keydown", this.keyDown.bind(this), true);
     this.canvas.addEventListener("keyup", this.keyUp.bind(this), true);
@@ -26,17 +29,19 @@ let AsteroidsGame = function(canvasId) {
 
 AsteroidsGame.prototype.resetGame = function() {
     this.gameOver = false;
+    this.level = 0;
     this.score = 0;
-    this.ship = new Ship(
-        this.canvas.width / 2,
-        this.canvas.height / 2,
-        10,
-        20,
-        0.001
-    );
+    this.ship = new Ship(this.canvas.width / 2, this.canvas.height / 2, 10, 20, 0.001);
     this.projectiles = [];
     this.asteroids = [];
-    this.asteroids.push(this.movingAsteroid(60));
+    this.levelUp();
+};
+
+AsteroidsGame.prototype.levelUp = function() {
+    this.level += 1;
+    for (let i = 0; i < this.level; i++) {
+        this.asteroids.push(this.movingAsteroid())
+    }
 };
 
 AsteroidsGame.prototype.movingAsteroid = function(elapsedMS) {
@@ -55,7 +60,7 @@ AsteroidsGame.prototype.newAsteroid = function() {
 };
 
 AsteroidsGame.prototype.pushAsteroid = function(asteroid, elapsedMS_) {
-    const elapsedMS = elapsedMS_ || 15;
+    const elapsedMS = elapsedMS_ || 60;
     asteroid.push(2 * Math.PI * Math.random(), this.asteroidPush, elapsedMS);
     asteroid.twist((Math.random() - 0.5) * 0.3 * this.asteroidPush, elapsedMS)
 };
@@ -132,6 +137,9 @@ AsteroidsGame.prototype.frame = function(timestamp) {
 };
 
 AsteroidsGame.prototype.update = function(elapsedMS) {
+    if (this.asteroids.length === 0) {
+        this.levelUp();
+    }
     this.ship.compromised = false;
     this.asteroids.forEach(function(asteroid) {
         asteroid.update(elapsedMS, this.ctx);
@@ -179,6 +187,10 @@ AsteroidsGame.prototype.draw = function() {
         asteroid.draw(this.ctx, this.guide);
     }, this);
 
+    this.healthIndicator.draw(this.ctx, this.ship.health / this.ship.maxHealth);
+    this.scoreIndicator.draw(this.ctx, this.score);
+    this.levelIndicator.draw(this.ctx, this.level);
+
     if (this.gameOver) {
         this.message.draw(this.ctx, "GAME OVER", "Press space to play again");
         return;
@@ -189,7 +201,4 @@ AsteroidsGame.prototype.draw = function() {
     this.projectiles.forEach(function(projectile) {
         projectile.draw(this.ctx)
     }, this);
-
-    this.healthIndicator.draw(this.ctx, this.ship.health / this.ship.maxHealth);
-    this.scoreIndicator.draw(this.ctx, this.score);
 };
