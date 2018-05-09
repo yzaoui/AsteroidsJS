@@ -26,6 +26,10 @@ Asteroid.prototype.draw = function(ctx, guide) {
     ctx.restore();
 };
 
+Asteroid.prototype.spawnChild = function(mass) {
+    return new Asteroid(this.x, this.y, mass, this.vx, this.vy, this.vrotation)
+};
+
 function Pacman(x, y, radius, speed) {
     this.x = x;
     this.y = y;

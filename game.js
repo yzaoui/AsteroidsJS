@@ -23,6 +23,8 @@ let AsteroidsGame = function(canvasId) {
     this.asteroids = [];
     this.asteroids.push(this.movingAsteroid(60));
     this.healthIndicator = new Indicator("health", 5, 5, 100, 10);
+    this.massLostOnCollision = 500;
+    this.score = 0;
     this.canvas.addEventListener("keydown", this.keyDown.bind(this), true);
     this.canvas.addEventListener("keyup", this.keyUp.bind(this), true);
     window.requestAnimationFrame(this.frame.bind(this));
@@ -47,6 +49,26 @@ AsteroidsGame.prototype.pushAsteroid = function(asteroid, elapsedMS_) {
     const elapsedMS = elapsedMS_ || 15;
     asteroid.push(2 * Math.PI * Math.random(), this.asteroidPush, elapsedMS);
     asteroid.twist((Math.random() - 0.5) * 0.3 * this.asteroidPush, elapsedMS)
+};
+
+AsteroidsGame.prototype.splitAsteroid = function(asteroid, elapsedMS) {
+    // Lose mass to distribute to children
+    asteroid.mass -= this.massLostOnCollision;
+    // Score is all mass that gets split
+    this.score += this.massLostOnCollision;
+    // Split asteroid along [25, 75]#
+    let split = 0.25 + 0.5 * Math.random();
+    let child1 = asteroid.spawnChild(asteroid.mass * split);
+    let child2 = asteroid.spawnChild(asteroid.mass * (1 - split));
+
+    [child1, child2].forEach(function(child) {
+        if (child.mass < this.massLostOnCollision) {
+            this.score += child.mass;
+        } else {
+            this.pushAsteroid(child, elapsedMS);
+            this.asteroids.push(child);
+        }
+    }, this)
 };
 
 AsteroidsGame.prototype.keyDown = function(e) {
@@ -104,10 +126,18 @@ AsteroidsGame.prototype.update = function(elapsedMS) {
         }
     }, this);
     this.ship.update(elapsedMS, this.ctx);
-    this.projectiles.forEach(function(projectile, i, projectiles) {
+    this.projectiles.forEach(function(projectile, i) {
         projectile.update(elapsedMS, this.ctx);
         if (projectile.lifePercentage <= 0) {
-            projectiles.splice(i, 1);
+            this.projectiles.splice(i, 1);
+        } else {
+            this.asteroids.forEach(function(asteroid, j) {
+                if (collision(asteroid, projectile)) {
+                    this.projectiles.splice(i, 1);
+                    this.asteroids.splice(j, 1);
+                    this.splitAsteroid(asteroid, elapsedMS);
+                }
+            }, this)
         }
     }, this);
     if (this.ship.triggerOn && this.ship.loaded) {
