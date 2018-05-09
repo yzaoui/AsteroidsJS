@@ -1,3 +1,11 @@
+function collision(obj1, obj2) {
+    return distanceBetween(obj1, obj2) < (obj1.radius + obj2.radius);
+}
+
+function distanceBetween(obj1, obj2) {
+    return Math.sqrt((obj1.x - obj2.x) ** 2 + (obj1.y - obj2.y) ** 2);
+}
+
 let AsteroidsGame = function(canvasId) {
     this.canvas = document.getElementById(canvasId);
     this.ctx = this.canvas.getContext("2d");
@@ -90,6 +98,9 @@ AsteroidsGame.prototype.update = function(elapsedMS) {
     this.ship.compromised = false;
     this.asteroids.forEach(function(asteroid) {
         asteroid.update(elapsedMS, this.ctx);
+        if (collision(asteroid, this.ship)) {
+            this.ship.compromised = true;
+        }
     }, this);
     this.ship.update(elapsedMS, this.ctx);
     this.projectiles.forEach(function(projectile, i, projectiles) {
@@ -121,4 +132,13 @@ AsteroidsGame.prototype.draw = function() {
     this.projectiles.forEach(function(projectile) {
         projectile.draw(this.ctx)
     }, this);
+
+    // Draw healthbar
+    this.ctx.save();
+
+    this.ctx.font = "18px arial";
+    this.ctx.fillStyle = "white";
+    this.ctx.fillText("health: " + this.ship.health.toFixed(1), 10, this.canvas.height - 10);
+
+    this.ctx.restore();
 };

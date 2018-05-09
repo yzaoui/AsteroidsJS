@@ -227,6 +227,9 @@ function Ship(x, y, mass, radius, power, weaponPower) {
     this.loaded = false;
     this.weaponReloadTimeMS = 250;
     this.timeMSUntilReloaded = this.weaponReloadTimeMS;
+    this.compromised = false;
+    this.maxHealth = 2000;
+    this.health = this.maxHealth;
 }
 extend(Ship, Mass);
 
@@ -237,7 +240,8 @@ Ship.prototype.draw = function(ctx, guide) {
     ctx.rotate(this.angle);
     drawShip(ctx, this.radius, {
         guide: guide,
-        forwardThrusterOn: this.forwardThrusterOn
+        forwardThrusterOn: this.forwardThrusterOn,
+        compromised: this.compromised
     });
 
     ctx.restore()
@@ -260,6 +264,10 @@ Ship.prototype.update = function(elapsedMS) {
     this.loaded = this.timeMSUntilReloaded === 0;
     if (!this.loaded) {
         this.timeMSUntilReloaded -= Math.min(elapsedMS, this.timeMSUntilReloaded);
+    }
+
+    if (this.compromised) {
+        this.health -= Math.min(elapsedMS, this.health);
     }
 
     Mass.prototype.update.apply(this, arguments);

@@ -90,6 +90,17 @@ function drawShip(ctx, radius, options) {
 
     ctx.save();
 
+    if (options.guide && options.compromised) {
+        ctx.save();
+
+        ctx.fillStyle = "red";
+        ctx.beginPath();
+        ctx.arc(0, 0, radius, 0, 2 * Math.PI);
+        ctx.fill();
+
+        ctx.restore();
+    }
+
     // Guide circle for ship radius
     if (options.guide) {
         ctx.strokeStyle = "white";
