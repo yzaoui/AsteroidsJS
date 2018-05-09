@@ -55,6 +55,9 @@ AsteroidsGame.prototype.keyHandler = function(e, pressed) {
         case "ArrowUp":
             this.ship.forwardThrusterOn = pressed;
             break;
+        case "ArrowDown":
+            this.ship.backwardThrusterOn = pressed;
+            break;
         case "ArrowLeft":
             this.ship.leftThrusterOn = pressed;
             break;

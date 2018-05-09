@@ -68,7 +68,7 @@ Pacman.prototype.moveUp = function() {
     this.vx = 0;
     this.vy = -this.speed;
     this.angle = 1.5 * Math.PI;
-}
+};
 
 Pacman.prototype.turnCCW = function() {
     this.turn(-1);
@@ -222,6 +222,7 @@ function Ship(x, y, mass, radius, power, weaponPower) {
     this.leftThrusterOn = false;
     this.rightThrusterOn = false;
     this.forwardThrusterOn = false;
+    this.backwardThrusterOn = false;
     this.weaponPower = weaponPower || 0.0002;
     this.loaded = false;
     this.weaponReloadTimeMS = 250;
@@ -243,8 +244,10 @@ Ship.prototype.draw = function(ctx, guide) {
 };
 
 Ship.prototype.update = function(elapsedMS) {
-    if (this.forwardThrusterOn) {
+    if (this.forwardThrusterOn && !this.backwardThrusterOn) {
         this.push(this.angle, this.thrusterPower, elapsedMS);
+    } else if (!this.forwardThrusterOn && this.backwardThrusterOn) {
+        this.push(this.angle, -this.thrusterPower, elapsedMS);
     }
 
     if (this.leftThrusterOn && !this.rightThrusterOn) {
